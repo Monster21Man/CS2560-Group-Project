@@ -19,6 +19,8 @@ public:
 
     const Board& getBoard() const;
 
+    void switchTurnPublic() { switchTurn(); }
+
 private:
     Board board;
     Player* players[2]; // index 0 = BLACK, index 1 = WHITE

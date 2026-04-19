@@ -15,7 +15,7 @@ class Display
         void setClearColor(const SDL_Color& color);
         void draw(SDL_Rect* rect, const SDL_Color& color, bool fill = true);
         void draw(SDL_Texture* texture, SDL_Rect* src = nullptr, SDL_Rect* dst = nullptr);
-        void draw(const char* text, TTF_Font* font, int x, int y, u_char r, u_char g, u_char b, u_char a);
+        void draw(const char* text, TTF_Font* font, int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
     
         SDL_Renderer* getRenderer();
     private:

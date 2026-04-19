@@ -41,7 +41,7 @@ void Display::draw(SDL_Texture* texture, SDL_Rect* src, SDL_Rect* dst)
     SDL_RenderCopy(renderer, texture, src, dst);
 }
 
-void Display::draw(const char* text, TTF_Font* font, int x, int y, u_char r, u_char g, u_char b, u_char a)
+void Display::draw(const char* text, TTF_Font* font, int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     SDL_Surface* textSurface = TTF_RenderText_Blended(font, text, {r, g, b, a});
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
