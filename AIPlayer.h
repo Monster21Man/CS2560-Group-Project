@@ -1,16 +1,16 @@
-//
-// Created by bhoce on 4/7/2026.
-//
-
-#ifndef UNTITLED12_AIPLAYER_H
-#define UNTITLED12_AIPLAYER_H
+#pragma once
+#include <string>
+#include "Player.h"
 
 
+class AIPlayer : public Player
+{
+public:
+    AIPlayer(const std::string& name, int color);
 
-class AIPlayer {
+    std::pair<int, int> getMove() override;
 
+private:
+    std::string name;
+    int color;
 };
-
-
-
-#endif //UNTITLED12_AIPLAYER_H
