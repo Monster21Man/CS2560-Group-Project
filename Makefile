@@ -22,6 +22,7 @@ OBJ = \
 	Display.o \
 	Game.o \
 	Player.o \
+	AIPlayer.o \
 	main.o \
 
 all: $(TARGET)
