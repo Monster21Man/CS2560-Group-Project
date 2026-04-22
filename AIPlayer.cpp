@@ -1,7 +1,7 @@
 #include "AIPlayer.h"
 #include <cstdlib>
 
-AIPlayer::AIPlayer(const std::string& name, int color) : name(name), color(color) {}
+AIPlayer::AIPlayer(const std::string& name, int color) : Player(name, color){}
 
 std::pair<int, int> AIPlayer::getMove()
 {
@@ -9,5 +9,5 @@ std::pair<int, int> AIPlayer::getMove()
     int x = rand() % 8;
     int y = rand() % 8;
 
-    return std::pair(x, y);
+    return std::pair<int, int>(x, y);
 };

@@ -12,7 +12,7 @@ public:
 
     virtual ~Player() = default;
 
-private:
+protected:
     std::string name;
     int color;
 };
