@@ -1,6 +1,8 @@
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <iostream>
+
+#include "AIPlayer.h"
 #include "Game.h"
 #include "Player.h"
 #include "Display.h"
@@ -23,7 +25,7 @@ void drawCircle(SDL_Renderer* renderer, int cx, int cy, int radius)
 int main(int argc, char* argv[])
 {
     Player black("Player 1", BLACK);
-    Player white("Player 2", WHITE);
+    AIPlayer white("Player 2", WHITE);
 
     Game game(&black, &white);
     Board& board = const_cast<Board&>(game.getBoard());
@@ -35,6 +37,8 @@ int main(int argc, char* argv[])
 
     int tileSize = 80;
     SDL_Renderer* renderer = display.getRenderer();
+
+    srand(time(0));
 
     while (running)
     {
@@ -50,11 +54,29 @@ int main(int argc, char* argv[])
                 int row = e.button.y / tileSize;
 
                 Player* current = game.getCurrentPlayer();
-                int color = current->getColor();
 
-                if (board.applyMove(row, col, color))
+                if (current->getColor() != BLACK) break;
+
+                //Human player goes, then AI, repeat
+                if (board.applyMove(row, col, BLACK))
                 {
                     game.switchTurnPublic();
+                    Player* AI = game.getCurrentPlayer();
+                    if (AI->getColor() == WHITE)
+                    {
+                        int AIRow;
+                        int AICol;
+
+                        do
+                        {
+                            auto [r, c] = AI->getMove();
+                            AIRow = r;
+                            AICol = c;
+                        } while (!board.isValidMove(AIRow, AICol, WHITE));
+
+                        board.applyMove(AIRow, AICol, WHITE);
+                        game.switchTurnPublic();
+                    }
                 }
                 else
                 {
