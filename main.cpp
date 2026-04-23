@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <string>
 
 #include "AIPlayer.h"
 #include "Game.h"
@@ -92,6 +93,10 @@ int main(int argc, char* argv[])
     int tileSize = 80;
     SDL_Renderer* renderer = display.getRenderer();
 
+    bool gameOver = false;
+    bool showInvalidMove = false;
+    Uint32 invalidMoveTimer = 0;
+
     srand(time(0));
 
     while (running)
@@ -102,6 +107,26 @@ int main(int argc, char* argv[])
         {
             if (e.type == SDL_QUIT)
                 running = false;
+
+            // If human has no valid moves, let AI go
+            if (!board.hasValidMove(BLACK))
+            {
+                if (board.hasValidMove(WHITE))
+                {
+                    int AIRow, AICol;
+                    do
+                    {
+                        auto [r, c] = white.getMove();
+                        AIRow = r;
+                        AICol = c;
+                    } while (!board.isValidMove(AIRow, AICol, WHITE));
+
+                    board.applyMove(AIRow, AICol, WHITE);
+                }
+
+                if (game.checkWinCondition() != GameState::ONGOING)
+                    gameOver = true;
+            }
 
             if (e.type == SDL_MOUSEBUTTONDOWN)
             {
@@ -118,24 +143,26 @@ int main(int argc, char* argv[])
                     game.switchTurnPublic();
                     Player* AI = game.getCurrentPlayer();
                     if (AI->getColor() == WHITE)
-                    {
-                        int AIRow;
-                        int AICol;
-
-                        do
-                        {
-                            auto [r, c] = AI->getMove();
-                            AIRow = r;
-                            AICol = c;
-                        } while (!board.isValidMove(AIRow, AICol, WHITE));
-
-                        board.applyMove(AIRow, AICol, WHITE);
-                        game.switchTurnPublic();
+                    {   
+                        if (board.hasValidMove(WHITE)) {
+                            int AIRow, AICol;
+                            do {
+                                auto [r, c] = AI->getMove();
+                                AIRow = r;
+                                AICol = c;
+                            } 
+                            while (!board.isValidMove(AIRow, AICol, WHITE));
+                            board.applyMove(AIRow, AICol, WHITE);
+                            game.switchTurnPublic();
+                        }
                     }
+                    if (game.checkWinCondition() != GameState::ONGOING)
+                        gameOver = true;
                 }
                 else
                 {
-                    std::cout << "Invalid move\n";
+                    showInvalidMove = true;
+                    invalidMoveTimer = SDL_GetTicks();
                 }
             }
         }
@@ -174,7 +201,93 @@ int main(int argc, char* argv[])
             }
         }
 
+        if (showInvalidMove)
+        {
+            SDL_Rect invalidRect = {195, 290, 250, 60};
+            display.draw(&invalidRect, {200, 0, 0, 255}, true);
+            display.draw("Invalid Move!", font, invalidRect.x + 15, invalidRect.y + 10, 255, 255, 255, 255);
+
+            if (SDL_GetTicks() - invalidMoveTimer > 1000)
+                showInvalidMove = false;
+        }
         display.update();
+
+        if (gameOver)
+        {
+            GameState result = game.checkWinCondition();
+            running = false;
+
+            SDL_Rect replayButton = {170, 380, 130, 50};
+            SDL_Rect exitButton = {340, 380, 130, 50};
+
+            bool endScreen = true;
+            while (endScreen)
+            {
+                while (SDL_PollEvent(&e))
+                {
+                    if (e.type == SDL_QUIT)
+                        endScreen = false;
+
+                    if (e.type == SDL_MOUSEBUTTONDOWN)
+                    {
+                        // Replay button
+                        if (e.button.x > replayButton.x && e.button.x < replayButton.x + replayButton.w &&
+                            e.button.y > replayButton.y && e.button.y < replayButton.y + replayButton.h)
+                        {
+                            board.reset();
+                            game.switchTurnPublic();
+                            gameOver = false;
+                            endScreen = false;
+                            running = true;
+                        }
+
+                        // Exit button
+                        if (e.button.x > exitButton.x && e.button.x < exitButton.x + exitButton.w &&
+                            e.button.y > exitButton.y && e.button.y < exitButton.y + exitButton.h)
+                        {
+                            endScreen = false;
+                        }
+                    }
+                }
+
+                display.setClearColor({0, 150, 0, 255});
+                display.clear();
+
+                int blackCount = board.countPieces(BLACK);
+                int whiteCount = board.countPieces(WHITE);
+
+                int textW, textH;
+
+                // Draw result centered
+                const char* resultText;
+                if (result == GameState::BLACK_WINS)
+                    resultText = "You Win!";
+                else if (result == GameState::WHITE_WINS)
+                    resultText = "You Lose!";
+                else
+                    resultText = "Draw!";
+
+                TTF_SizeText(font, resultText, &textW, &textH);
+                display.draw(resultText, font, (WIDTH - textW) / 2, 260, 255, 255, 255, 255);
+
+                // Draw score centered
+                std::string scoreStr = "Black: " + std::to_string(blackCount) + "  White: " + std::to_string(whiteCount);
+                TTF_SizeText(font, scoreStr.c_str(), &textW, &textH);
+                display.draw(scoreStr.c_str(), font, (WIDTH - textW) / 2, 330, 255, 255, 255, 255);
+
+                // Replay button
+                display.draw(&replayButton, {255, 255, 255, 255}, false);
+                TTF_SizeText(font, "Replay", &textW, &textH);
+                display.draw("Replay", font, replayButton.x + (replayButton.w - textW) / 2, replayButton.y + (replayButton.h - textH) / 2, 255, 255, 255, 255);
+
+                // Exit button
+                display.draw(&exitButton, {255, 255, 255, 255}, false);
+                TTF_SizeText(font, "Exit", &textW, &textH);
+                display.draw("Exit", font, exitButton.x + (exitButton.w - textW) / 2, exitButton.y + (exitButton.h - textH) / 2, 255, 255, 255, 255);
+
+                display.update();
+            }
+        }
     }
 
     //end game
