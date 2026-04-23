@@ -7,6 +7,9 @@
 #include "Player.h"
 #include "Display.h"
 
+const int WIDTH = 640;
+const int HEIGHT = 640;
+
 // ---------- circle helper ----------
 void drawCircle(SDL_Renderer* renderer, int cx, int cy, int radius)
 {
@@ -24,16 +27,67 @@ void drawCircle(SDL_Renderer* renderer, int cx, int cy, int radius)
 
 int main(int argc, char* argv[])
 {
+    //homescreen
+    Display display("Reversi", WIDTH, HEIGHT);
+    TTF_Font* font = TTF_OpenFont("Roboto-VariableFont_wdth,wght.ttf", 40);
+
+    bool running = true;
+    bool exit = false;
+    SDL_Event e;
+
+    SDL_Rect title = {245, 200, 150, 60};
+    SDL_Rect button = {225, 280, 190, 60};
+    
+    while(running)
+    {
+        //input
+        while(SDL_PollEvent(&e))
+        {
+            switch(e.type)
+            {
+                case SDL_QUIT:
+                    exit = true;
+                    running = false;
+                    break;
+                
+                case SDL_MOUSEBUTTONDOWN:
+                    if (e.type == SDL_MOUSEBUTTONDOWN)
+                    {
+                        if(e.button.x > button.x && e.button.x < button.x + button.w && 
+                           e.button.y > button.y && e.button.y < button.y + button.h)
+                        {
+                            running = false;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        //draw
+        display.setClearColor({0, 150, 0, 255});
+        display.clear();
+
+        display.draw(&title, {0, 0, 0, 255}, false);
+        display.draw(&button, {0, 0, 0, 255}, false);
+
+        display.draw("Click Here", font, button.x + 5, button.y + 10, 0, 0, 0, 255);
+        display.draw("Reversi", font, title.x + 10, title.y + 5, 0, 0, 0, 255);
+
+        display.update();
+    }
+
+    if(exit)
+    {
+        return 0;
+    }
+    running = true;
+
+    //game
     Player black("Player 1", BLACK);
     AIPlayer white("Player 2", WHITE);
 
     Game game(&black, &white);
     Board& board = const_cast<Board&>(game.getBoard());
-
-    Display display("Reversi", 640, 640);
-
-    bool running = true;
-    SDL_Event e;
 
     int tileSize = 80;
     SDL_Renderer* renderer = display.getRenderer();
@@ -42,6 +96,7 @@ int main(int argc, char* argv[])
 
     while (running)
     {
+        //game
         // ---------------- INPUT ----------------
         while (SDL_PollEvent(&e))
         {
@@ -121,6 +176,10 @@ int main(int argc, char* argv[])
 
         display.update();
     }
+
+    //end game
+
+    TTF_CloseFont(font);
 
     return 0;
 }

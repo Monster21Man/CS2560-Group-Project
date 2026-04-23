@@ -3,6 +3,7 @@
 Display::Display(const char* name, int width, int height)
 {
     SDL_Init(SDL_INIT_VIDEO);
+    TTF_Init();
 
     window = SDL_CreateWindow(name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -12,6 +13,7 @@ Display::~Display()
 {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    TTF_Quit();
     SDL_Quit();
 }
 
