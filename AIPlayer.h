@@ -8,5 +8,5 @@ class AIPlayer : public Player
 public:
     AIPlayer(const std::string& name, int color);
 
-    std::pair<int, int> getMove() override;
+    std::pair<int, int> getMove(const Board& board) override;
 };

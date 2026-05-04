@@ -9,7 +9,7 @@ int Player::getColor() const {
     return color;
 }
 
-std::pair<int, int> Player::getMove() {
+std::pair<int, int> Player::getMove(const Board& board) {
     // This will be overridden by derived classes (e.g., HumanPlayer, AIPlayer)
     return {-1, -1}; // Invalid move by default
 }

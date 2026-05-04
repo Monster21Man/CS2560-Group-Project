@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "Board.h"
 
 class Player {
 public:
@@ -8,7 +9,7 @@ public:
     std::string getName() const;
     int getColor() const;
 
-    virtual std::pair<int, int> getMove(); 
+    virtual std::pair<int, int> getMove(const Board& board);
 
     virtual ~Player() = default;
 

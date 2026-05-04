@@ -113,14 +113,7 @@ int main(int argc, char* argv[])
             {
                 if (board.hasValidMove(WHITE))
                 {
-                    int AIRow, AICol;
-                    do
-                    {
-                        auto [r, c] = white.getMove();
-                        AIRow = r;
-                        AICol = c;
-                    } while (!board.isValidMove(AIRow, AICol, WHITE));
-
+                    auto [AIRow, AICol] = white.getMove(board);
                     board.applyMove(AIRow, AICol, WHITE);
                 }
 
@@ -145,13 +138,7 @@ int main(int argc, char* argv[])
                     if (AI->getColor() == WHITE)
                     {   
                         if (board.hasValidMove(WHITE)) {
-                            int AIRow, AICol;
-                            do {
-                                auto [r, c] = AI->getMove();
-                                AIRow = r;
-                                AICol = c;
-                            } 
-                            while (!board.isValidMove(AIRow, AICol, WHITE));
+                            auto [AIRow, AICol] = white.getMove(board);
                             board.applyMove(AIRow, AICol, WHITE);
                             game.switchTurnPublic();
                         }
